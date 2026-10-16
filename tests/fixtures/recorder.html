@@ -1,0 +1,47 @@
+<!doctype html>
+<meta charset="utf-8" />
+<title>recorder fixture</title>
+<!-- 模拟被测页面：点击按钮后 getUserMedia + MediaRecorder 录音，结果写入 window.results。 -->
+<button id="record">record</button>
+<script>
+  window.results = []
+  const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
+
+  // 只统计有声音的 10ms 窗口，用过零率估算主频率。
+  function analyse(buffer) {
+    const data = buffer.getChannelData(0)
+    const window = Math.round(buffer.sampleRate / 100)
+    let crossings = 0
+    let voiced = 0
+    for (let start = 0; start + window <= data.length; start += window) {
+      let energy = 0
+      for (let i = start; i < start + window; i++) energy += data[i] * data[i]
+      if (Math.sqrt(energy / window) < 0.02) continue
+      voiced += window
+      for (let i = start + 1; i < start + window; i++) if (data[i - 1] < 0 !== data[i] < 0) crossings++
+    }
+    const voicedSeconds = voiced / buffer.sampleRate
+    return { frequency: voiced ? crossings / 2 / voicedSeconds : 0, voicedSeconds }
+  }
+
+  document.getElementById('record').addEventListener('click', async () => {
+    const ms = Number(new URLSearchParams(location.search).get('ms') ?? 1500)
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false })
+    const track = stream.getAudioTracks()[0]
+    let ended = false
+    track.addEventListener('ended', () => (ended = true))
+    const recorder = new MediaRecorder(stream)
+    const chunks = []
+    recorder.ondataavailable = (event) => chunks.push(event.data)
+    const stopped = new Promise((resolve) => recorder.addEventListener('stop', resolve, { once: true }))
+    recorder.start()
+    await sleep(ms)
+    const endedBeforeStop = ended
+    const readyState = track.readyState
+    recorder.stop()
+    await stopped
+    stream.getTracks().forEach((t) => t.stop())
+    const audio = await new OfflineAudioContext(1, 1, 48000).decodeAudioData(await new Blob(chunks).arrayBuffer())
+    window.results.push({ label: track.label, endedBeforeStop, readyState, ...analyse(audio) })
+  })
+</script>
