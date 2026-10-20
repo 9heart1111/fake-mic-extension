@@ -1,3 +1,5 @@
 node_modules/
 test-results/
 playwright-report/
+icons/preview.png
+.DS_Store

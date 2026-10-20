@@ -2,9 +2,34 @@
   "name": "fake-mic-extension",
   "version": "0.1.0",
   "private": true,
+  "description": "Chrome extension that feeds an audio file to getUserMedia as a fake microphone — bilingual UI, works on any site you opt in to.",
+  "keywords": [
+    "chrome-extension",
+    "playwright",
+    "getusermedia",
+    "mediarecorder",
+    "webrtc",
+    "audio",
+    "testing",
+    "fake-microphone"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/9heart1111/fake-mic-extension.git"
+  },
+  "bugs": {
+    "url": "https://github.com/9heart1111/fake-mic-extension/issues"
+  },
+  "homepage": "https://github.com/9heart1111/fake-mic-extension#readme",
   "type": "module",
+  "engines": {
+    "node": ">=20.11"
+  },
   "scripts": {
-    "test": "playwright test"
+    "test": "playwright test",
+    "screenshots": "node scripts/screenshots.mjs",
+    "icons": "node scripts/icons.mjs"
   },
   "devDependencies": {
     "@playwright/test": "1.64.0"
