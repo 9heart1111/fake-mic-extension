@@ -1,20 +1,38 @@
 {
   "manifest_version": 3,
-  "name": "Fake Mic",
+  "default_locale": "en",
+  "name": "__MSG_extName__",
   "version": "0.1.0",
-  "description": "用音频文件模拟麦克风，替换页面的 getUserMedia 音频输入，便于测试录音功能。",
+  "description": "__MSG_extDescription__",
+  "homepage_url": "https://github.com/9heart1111/fake-mic-extension",
+  "minimum_chrome_version": "111",
   "permissions": ["storage", "unlimitedStorage"],
+  "host_permissions": ["*://*/*"],
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "action": {
+    "default_popup": "src/popup.html",
+    "default_title": "__MSG_extName__",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png"
+    }
+  },
   "content_scripts": [
     {
-      "matches": ["http://localhost/*", "https://localhost/*", "http://127.0.0.1/*", "https://127.0.0.1/*"],
+      "matches": ["*://*/*"],
       "js": ["src/main-world.js"],
       "world": "MAIN",
       "run_at": "document_start",
       "all_frames": true
     },
     {
-      "matches": ["http://localhost/*", "https://localhost/*", "http://127.0.0.1/*", "https://127.0.0.1/*"],
-      "js": ["src/panel.js"],
+      "matches": ["*://*/*"],
+      "js": ["src/i18n.js", "src/panel.js"],
       "run_at": "document_start",
       "all_frames": true
     }

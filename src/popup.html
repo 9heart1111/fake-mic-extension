@@ -1,0 +1,67 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Fake Mic</title>
+    <style>
+      :root { color-scheme: light dark; }
+      * { box-sizing: border-box; }
+      body { margin: 0; width: 292px;
+        font: 12px/1.45 -apple-system, BlinkMacSystemFont, "PingFang SC", "Segoe UI", Roboto, sans-serif;
+        color: #1f2328; background: #ffffff; -webkit-font-smoothing: antialiased; }
+
+      header { display: flex; align-items: center; gap: 8px; padding: 9px 12px; background: #f6f8fa;
+        border-bottom: 1px solid #eaeef2; font-weight: 600; font-size: 12.5px; }
+      .logo { width: 15px; height: 15px; color: #1f6feb; flex: none; }
+
+      main { display: grid; gap: 10px; padding: 12px; }
+      .site { color: #656d76; font-size: 11.5px; line-height: 1.4; word-break: break-all; }
+
+      .opt { display: flex; align-items: center; gap: 10px; cursor: pointer; user-select: none; }
+      .opt[hidden] { display: none; }
+      .opt-label { flex: 1; min-width: 0; }
+
+      input[type=checkbox] { appearance: none; -webkit-appearance: none; position: relative; flex: none; margin: 0;
+        width: 30px; height: 18px; border-radius: 999px; background: #d0d7de; cursor: pointer;
+        transition: background .16s ease; }
+      input[type=checkbox]::after { content: ''; position: absolute; top: 2px; left: 2px; width: 14px; height: 14px;
+        border-radius: 50%; background: #fff; box-shadow: 0 1px 2px rgba(31,35,40,.3); transition: transform .16s ease; }
+      input[type=checkbox]:checked { background: #1f6feb; }
+      input[type=checkbox]:checked::after { transform: translateX(12px); }
+      input[type=checkbox]:focus-visible { outline: 2px solid #1f6feb; outline-offset: 2px; }
+      input[type=checkbox]:disabled { opacity: .55; cursor: default; }
+
+      .hint { color: #656d76; font-size: 11px; line-height: 1.5; }
+
+      @media (prefers-color-scheme: dark) {
+        body { color: #e6edf3; background: #161b22; }
+        header { background: #1c2128; border-color: #21262d; }
+        .logo { color: #388bfd; }
+        .site, .hint { color: #8d96a0; }
+        input[type=checkbox] { background: #3d444d; }
+        input[type=checkbox]:checked { background: #388bfd; }
+      }
+      @media (prefers-reduced-motion: reduce) { input[type=checkbox], input[type=checkbox]::after { transition: none; } }
+    </style>
+  </head>
+  <body>
+    <header>
+      <svg class="logo" viewBox="0 0 24 24" aria-hidden="true">
+        <rect x="9" y="2.5" width="6" height="11" rx="3" fill="currentColor" />
+        <path d="M5.5 11a6.5 6.5 0 0 0 13 0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+        <path d="M12 17.5V21" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+      </svg>
+      <span id="title">Fake Mic</span>
+    </header>
+    <main>
+      <div class="site" id="site"></div>
+      <label class="opt" id="toggle-row" hidden>
+        <span class="opt-label" id="toggle-label"></span>
+        <input type="checkbox" id="toggle" data-key="site" />
+      </label>
+      <div class="hint" id="hint"></div>
+    </main>
+    <script src="i18n.js"></script>
+    <script src="popup.js"></script>
+  </body>
+</html>

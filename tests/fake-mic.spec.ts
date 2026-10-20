@@ -1,4 +1,4 @@
-import { FIXTURE_URL, addClips, expect, expectSelected, panel, record, test } from './helpers'
+import { FIXTURE_URL, REAL_DEVICE_TONE, addClips, expect, expectSelected, option, record, test } from './helpers'
 
 const A = 440
 const B = 880
@@ -32,13 +32,15 @@ test('录完自动切到下一段，下一轮录到的是新段落', async ({ pa
 
 test('关闭插件后页面拿到的是真实麦克风', async ({ page }) => {
   await page.goto(`${FIXTURE_URL}?ms=600`)
-  await addClips(page, [['a.wav', A, 0.5]])
-  await panel(page).getByLabel('录完切到下一段').uncheck()
-  await expectSelected(page, 'a.wav')
+  // 音频段用 880 Hz，和 Chrome 模拟麦克风喂的 660 Hz（REAL_DEVICE_TONE）区分开。
+  await addClips(page, [['b.wav', B, 0.5]])
+  await option(page, 'autoAdvance').uncheck()
+  await expectSelected(page, 'b.wav')
   const fake = await record(page)
 
-  await panel(page).getByLabel('启用模拟麦克风').uncheck()
+  await option(page, 'enabled').uncheck()
   const real = await record(page)
   expect(real.label).not.toBe(fake.label)
-  expect(Math.abs(real.frequency - A)).toBeGreaterThan(A * 0.1)
+  expect(real.frequency).toBeGreaterThan(REAL_DEVICE_TONE * 0.9)
+  expect(real.frequency).toBeLessThan(REAL_DEVICE_TONE * 1.1)
 })

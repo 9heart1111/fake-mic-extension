@@ -22,6 +22,14 @@
   let progressTimer = null
   let recording = 0
 
+  // 只有面板确认“当前站点生效”时才替换麦克风；插件现在注入所有 http/https 站点，
+  // 未启用的站点必须原样放行真实麦克风（见 panel.js 的站点判断）。
+  let active = false
+  let releaseGate
+  const gate = new Promise((resolve) => (releaseGate = resolve))
+  // 面板正常会在几毫秒内发来第一条设置；万一面板没跑起来，超时后按“未启用”处理。
+  setTimeout(() => releaseGate(), 1000)
+
   const post = (message) => window.postMessage({ [TAG]: 'toPanel', ...message }, '*')
 
   function ensureContext() {
@@ -68,7 +76,8 @@
     if (!clip) {
       // 音频还在加载时先记下，加载完立即播放。
       pendingPlay = loadingClipId !== null
-      if (!pendingPlay) post({ type: 'warning', text: '没有选中的音频段，录到的是静音' })
+      // 只发 code，文案由面板按当前界面语言渲染（见 i18n.js 的 warning.*）。
+      if (!pendingPlay) post({ type: 'warning', code: 'noClip' })
       return
     }
     const node = ctx.createBufferSource()
@@ -122,7 +131,9 @@
   }
 
   mediaDevices.getUserMedia = async function getUserMedia(constraints) {
-    if (!settings.enabled || !constraints?.audio) return realGetUserMedia(constraints)
+    // 等面板的第一次上报再决定替不替换，避免页面在 document_start 之后立刻取麦克风时误判。
+    await gate
+    if (!active || !constraints?.audio) return realGetUserMedia(constraints)
     const track = createFakeTrack()
     let videoTracks = []
     if (constraints.video) {
@@ -170,23 +181,28 @@
       if (pendingPlay || wasPlaying) play()
     } catch {
       if (loadingClipId === message.id) loadingClipId = null
-      post({ type: 'warning', text: `无法解码音频：${message.name}` })
+      post({ type: 'warning', code: 'decodeFailed', name: message.name })
     }
   }
 
-  function applySettings(next) {
+  function applySettings(next, siteActive) {
     const monitorChanged = next.monitor !== settings.monitor
     Object.assign(settings, next)
     if (monitorChanged && bus) {
       if (settings.monitor) bus.connect(ctx.destination)
       else bus.disconnect(ctx.destination)
     }
+    if (typeof siteActive === 'boolean') {
+      if (!siteActive && active) stopPlayback() // 在面板/弹窗里关掉当前站点时立刻停止播放
+      active = siteActive
+      releaseGate()
+    }
   }
 
   window.addEventListener('message', (event) => {
     const message = event.data
     if (event.source !== window || message?.[TAG] !== 'toMain') return
-    if (message.type === 'settings') applySettings(message.settings)
+    if (message.type === 'settings') applySettings(message.settings, message.active)
     else if (message.type === 'clip') void loadClip(message)
     else if (message.type === 'play') play()
     else if (message.type === 'stop') stopPlayback()

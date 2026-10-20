@@ -1,0 +1,10 @@
+{
+  "extName": {
+    "message": "Fake Mic（模拟麦克风）",
+    "description": "Chrome 扩展页显示的插件名称。"
+  },
+  "extDescription": {
+    "message": "用音频文件模拟麦克风：替换页面 getUserMedia 的音频输入，无需虚拟声卡即可测试录音功能。",
+    "description": "Chrome 扩展页显示的插件简介，最多 132 个字符。"
+  }
+}

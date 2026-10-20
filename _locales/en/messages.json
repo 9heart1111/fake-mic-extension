@@ -1,0 +1,10 @@
+{
+  "extName": {
+    "message": "Fake Mic",
+    "description": "Extension name shown by Chrome on chrome://extensions."
+  },
+  "extDescription": {
+    "message": "Feed a fake microphone into any page: replace getUserMedia audio with your own audio files, no virtual audio device needed.",
+    "description": "Extension description shown by Chrome, max 132 characters."
+  }
+}
